@@ -61,5 +61,14 @@ module.exports = {
     */
     extend (config, ctx) {
     }
+  },
+  proxy: {
+    "/api/": {
+      target: "http://localhost:7001",
+      secure: false,
+      pathRewrite: {
+        "^/api": ""
+      }
+    }
   }
 }
