@@ -1,6 +1,8 @@
 # upload
 
-> My stupendous Nuxt.js project
+> My stupendous Nuxt.js project base at Nuxt@2.9.2
+
+![3](https://user-images.githubusercontent.com/39609201/133717303-6a683a0b-b79f-48a6-8017-e4acf10bd5e0.png)
 
 ## Build Setup
 
