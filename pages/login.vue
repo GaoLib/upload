@@ -28,7 +28,6 @@
       </el-form-item>
 
       <el-form-item label=" ">
-        <!-- <button @clikc.prevent></button> -->
         <el-button @click.native.prevent="handleLogin" type="primary">
           登录
         </el-button>
@@ -43,7 +42,7 @@
 </template>
 
 <script>
-// import md5 from 'md5'
+import md5 from 'md5'
 export default {
   layout: 'login',
   data() {
@@ -102,17 +101,13 @@ export default {
     handleLogin() {
       this.$refs.loginForm.validate(async (valid) => {
         if (valid) {
-          // @todo 发送注册请求
           const obj = {
             email: this.form.email,
-            // passwd:md5(this.form.passwd),
-            passwd: '',
+            passwd: md5(this.form.passwd),
             captcha: this.form.captcha,
             emailcode: this.form.emailcode
           }
           const ret = await this.$http.post('/user/login', obj)
-          // code=0 就是成功
-          // console.log(ret)
           if (ret.code === 0) {
             // ttoken的存储 登录成功，返回token
             this.$message.success('登录成功')

@@ -27,7 +27,6 @@
       </el-form-item>
 
       <el-form-item label=" ">
-        <!-- <button @clikc.prevent></button> -->
         <el-button @click.native.prevent="handleRegister" type="primary">
           注册
         </el-button>
@@ -85,7 +84,6 @@ export default {
     handleRegister() {
       this.$refs.registerForm.validate(async (valid) => {
         if (valid) {
-          // @todo 发送注册请求
           const obj = {
             email: this.form.email,
             nickname: this.form.nickname,
@@ -93,7 +91,6 @@ export default {
             captcha: this.form.captcha
           }
           const ret = await this.$http.post('/user/register', obj)
-          // code=0 就是成功
           if (ret.code === 0) {
             this.$alert('注册成功', '成功', {
               confirmButtonText: '去登录',

@@ -1,10 +1,10 @@
 <template>
   <div>
-    <div>
+    <!-- <div>
       导航
-    </div>
+    </div> -->
     <nuxt />
-    <div>底部信息</div>
+    <!-- <div>底部信息</div> -->
   </div>
 </template>
 
