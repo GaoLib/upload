@@ -91,7 +91,7 @@ export default {
             captcha: this.form.captcha
           }
           const ret = await this.$http.post('/user/register', obj)
-          if (ret.data.code === 0) {
+          if (ret.code === 0) {
             this.$alert('注册成功', '成功', {
               confirmButtonText: '去登录',
               callback: () => {
@@ -99,7 +99,7 @@ export default {
               }
             })
           } else {
-            this.$message.error(ret.data.message)
+            this.$message.error(ret.message)
           }
         } else {
           this.$message.error('校验失败')

@@ -8,6 +8,12 @@ const service = axios.create({
 // 请求拦截
 
 // 响应拦截
+service.interceptors.response.use(
+  (response) => {
+    const { data } = response
+    return data
+  }
+)
 
 Vue.prototype.$http = service
 
