@@ -99,7 +99,7 @@ export default {
               }
             })
           } else {
-            this.$message.error(ret.message)
+            this.$message.error(ret.msg)
           }
         } else {
           this.$message.error('校验失败')
