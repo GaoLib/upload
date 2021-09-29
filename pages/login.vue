@@ -51,8 +51,8 @@ export default {
         timer: 0
       },
       form: {
-        email: '316783812@qq.com',
-        passwd: 'a316783812',
+        email: 'xingaoemail@163.com',
+        passwd: '',
         captcha: ''
       },
       rules: {
@@ -116,7 +116,7 @@ export default {
               this.$router.push('/')
             }, 500)
           } else {
-            this.$message.error(ret.message)
+            this.$message.error(ret.msg)
           }
         } else {
           this.$message.error('校验失败')
