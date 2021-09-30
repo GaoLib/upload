@@ -85,7 +85,6 @@ export default {
   },
   methods: {
     async sendEmailCode() {
-      // @todo
       await this.$http.get('/sendcode?email=' + this.form.email)
       this.send.timer = 10
       this.timer = setInterval(() => {
