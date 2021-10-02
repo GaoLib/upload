@@ -86,7 +86,7 @@ export default {
   methods: {
     async sendEmailCode() {
       await this.$http.get('/sendcode?email=' + this.form.email)
-      this.send.timer = 10
+      this.send.timer = 60
       this.timer = setInterval(() => {
         this.send.timer -= 1
         if (this.send.timer === 0) {
@@ -108,9 +108,10 @@ export default {
           }
           const ret = await this.$http.post('/user/login', obj)
           if (ret.code === 0) {
-            // ttoken的存储 登录成功，返回token
+            // token的存储 登录成功，返回token
             this.$message.success('登录成功')
-            localStorage.setItem('KKB_USER_TOKEN', ret.data.token)
+            // localStorage.setItem('KKB_USER_TOKEN', ret.data.token)
+            localStorage.setItem('token', ret.data.token)
             setTimeout(() => {
               this.$router.push('/')
             }, 500)
