@@ -2,7 +2,7 @@
   <div>
     <h1>用户中心</h1>
     <div>
-      <input type="file" @change="handleFileChanged" name="file" />
+      <input @change="handleFileChanged" type="file" name="file"></input>
     </div>
     <div>
       <el-button @click="uploadFile">
@@ -20,21 +20,20 @@ export default {
     }
   },
   async mounted() {
-    const ret = await this.$http.get('/user/info')
-    console.log(ret)
+    await this.$http.get('/user/info')
   },
   methods: {
     handleFileChanged(e) {
-      const file = e.target.files
-      if (!file) return
-      this.file = file
+      const file = e.target.files[0]
+      if (file) {
+        this.file = file
+      }
     },
     async uploadFile() {
       const form = new FormData()
       form.append('name', 'file')
       form.append('file', this.file)
-      const ret = await this.$http.post('uploadfile', form)
-      console.log(ret)
+      await this.$http.post('uploadfile', form)
     }
   }
 }
