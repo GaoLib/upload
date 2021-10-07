@@ -51,7 +51,34 @@ export default {
         this.file = file
       }
     },
+    blobToString(blob) {
+      return new Promise((resolve) => {
+        const reader = new FileReader()
+        reader.onload = () => {
+          const ret = reader.result.split('')
+            .map(v => v.charCodeAt())
+            .map(v => v.toString(16).toUpperCase())
+            .map(v => v.padStart(2, '0'))
+            .join('')
+          resolve(ret)
+        }
+        reader.readAsBinaryString(blob)
+      })
+    },
+    async isGif(file) {
+      // '47 49 46 38 39 61' || '47 49 46 38 37 61'
+      const ret = await this.blobToString(file.slice(0, 6))
+      return (ret === '47 49 46 38 39 61') || (ret === '47 49 46 38 37 61')
+    },
+    async isImage(file) {
+      const result = await this.isGif(file)
+      return result
+    },
     async uploadFile() {
+      if (!await this.isImage(this.file)) {
+        this.$message.error('文件格式错误')
+        return
+      }
       const form = new FormData()
       form.append('name', 'file')
       form.append('file', this.file)
