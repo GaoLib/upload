@@ -68,11 +68,26 @@ export default {
     async isGif(file) {
       // '47 49 46 38 39 61' || '47 49 46 38 37 61'
       const ret = await this.blobToString(file.slice(0, 6))
-      return (ret === '47 49 46 38 39 61') || (ret === '47 49 46 38 37 61')
+      const string = ret.replace(/\s/g, '')
+      return (string === '474946383961') || (string === '474946383761')
+    },
+    async isPng(file) {
+      // '89 50 4E 47 0D 0A 1A 0A'
+      const ret = await this.blobToString(file.slice(0, 8))
+      const string = ret.replace(/\s/g, '')
+      return string === '89504E470D0A1A0A'
+    },
+    async isJpg(file) {
+      const len = file.size
+      const start = await this.blobToString(file.slice(0, 2))
+      const tail = await this.blobToString(file.slice(-2, len))
+      return start.replace(/\s/g, '') === 'FFD8' && tail.replace(/\s/g, '') === 'FFD9'
     },
     async isImage(file) {
-      const result = await this.isGif(file)
-      return result
+      const isGif = await this.isGif(file)
+      const isPng = await this.isPng(file)
+      const isJpg = await this.isJpg(file)
+      return isGif || isPng || isJpg
     },
     async uploadFile() {
       if (!await this.isImage(this.file)) {
