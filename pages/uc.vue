@@ -12,15 +12,22 @@
         上传
       </el-button>
     </div>
+    <div class="progress">
+      <p>计算hash进度</p>
+      <el-progress :stroke-width="20" :text-inside="true" :percentage="hashProgress" />
+    </div>
   </div>
 </template>
 
 <script>
+const CHUNK_SIZE = 0.5 * 1024 * 1024
 export default {
   data() {
     return {
       file: null,
-      uploadProgress: 0
+      uploadProgress: 0,
+      hashProgress: 0,
+      hash: null
     }
   },
   async mounted() {
@@ -49,6 +56,7 @@ export default {
       const file = e.target.files[0]
       if (file) {
         this.file = file
+        this.hashProgress = 0
       }
     },
     blobToString(blob) {
@@ -89,19 +97,46 @@ export default {
       const isJpg = await this.isJpg(file)
       return isGif || isPng || isJpg
     },
-    async uploadFile() {
-      if (!await this.isImage(this.file)) {
-        this.$message.error('文件格式错误')
-        return
+    createFileChunk(file, size = CHUNK_SIZE) {
+      const chunks = []
+      let cur = 0
+      while (cur < file.size) {
+        chunks.push({ index: cur, file: this.file.slice(cur, cur + size) })
+        cur += size
       }
-      const form = new FormData()
-      form.append('name', 'file')
-      form.append('file', this.file)
-      await this.$http.post('uploadfile', form, {
-        onUploadProgress: (progress) => {
-          this.uploadProgress = Number((progress.loaded / progress.total) * 100).toFixed(2)
+      return chunks
+    },
+    calculateHashWorker() {
+      return new Promise((resolve) => {
+        this.worker = new Worker('/hash.js')
+        this.worker.postMessage({ chunks: this.chunks })
+        this.worker.onmessage = (e) => {
+          const { progress, hash } = e.data
+          this.hashProgress = Number(progress.toFixed(2))
+          if (hash) {
+            resolve(hash)
+          }
         }
       })
+    },
+    async uploadFile() {
+      // ! 图片格式校验
+      // if (!await this.isImage(this.file)) {
+      //   this.$message.error('文件格式错误')
+      //   return
+      // }
+      this.chunks = this.createFileChunk(this.file)
+      const hash = await this.calculateHashWorker()
+      console.log(hash)
+
+      // const form = new FormData()
+      // form.append('name', 'file')
+      // form.append('file', this.file)
+      // await this.$http.post('uploadfile', form, {
+      //   onUploadProgress: (progress) => {
+      //     this.uploadProgress = Number((progress.loaded / progress.total) * 100).toFixed(2)
+      //   }
+      // })
     }
   }
 }
@@ -109,11 +144,11 @@ export default {
 
 <style lang="stylus" scoped>
 .drag
-  width 200px
+  width 300px
   height 100px
   border 2px dashed #eee
   text-align center
   line-height 100px
 .progress
-  width 200px
+  width 300px
 </style>
