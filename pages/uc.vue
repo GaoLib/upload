@@ -20,7 +20,10 @@
 </template>
 
 <script>
-const CHUNK_SIZE = 0.5 * 1024 * 1024
+import spartMD5 from 'spark-md5'
+
+const CHUNK_SIZE = 0.1 * 1024 * 1024
+
 export default {
   data() {
     return {
@@ -119,6 +122,39 @@ export default {
         }
       })
     },
+    calculateHashIdle() {
+      const chunks = this.chunks
+      return new Promise((resolve) => {
+        const spark = new spartMD5.ArrayBuffer()
+        let count = 0
+
+        const appendToSpark = (file) => {
+          return new Promise((resolve) => {
+            const reader = new FileReader()
+            reader.readAsArrayBuffer(file)
+            reader.onload = (e) => {
+              spark.append(e.target.result)
+              resolve()
+            }
+          })
+        }
+
+        const workLoop = async (deadline) => {
+          while (count < chunks.length && deadline.timeRemaining() > 1) {
+            await appendToSpark(chunks[count].file)
+            count++
+            if (count < chunks.length) {
+              this.hashProgress = Number((100 * count / chunks.length).toFixed(2))
+            } else {
+              this.hashProgress = 100
+              resolve(spark.end())
+            }
+          }
+          window.requestIdleCallback(workLoop)
+        }
+        window.requestIdleCallback(workLoop)
+      })
+    },
     async uploadFile() {
       // ! 图片格式校验
       // if (!await this.isImage(this.file)) {
@@ -126,8 +162,10 @@ export default {
       //   return
       // }
       this.chunks = this.createFileChunk(this.file)
-      const hash = await this.calculateHashWorker()
-      console.log(hash)
+      // const hash = await this.calculateHashWorker()
+      const hash1 = await this.calculateHashIdle()
+      // console.log('hash', hash)
+      console.log('hash1', hash1)
 
       // const form = new FormData()
       // form.append('name', 'file')
