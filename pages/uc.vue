@@ -155,6 +155,39 @@ export default {
         window.requestIdleCallback(workLoop)
       })
     },
+    // ! 可用来进行预判断，布隆过滤器原理
+    // ! hash 一样，文件不一定一样
+    // ! hash 不一样， 文件一定不一样
+    calculateHashSample() {
+      return new Promise((resolve) => {
+        const spark = new spartMD5.ArrayBuffer()
+        const reader = new FileReader()
+
+        const file = this.file
+        const size = file.size
+        const offset = 2 * 1024 * 1024
+        const chunks = [file.slice(0, offset)]
+        let cur = offset
+        while (cur < size) {
+          if (cur + offset >= size) {
+            chunks.push(file.slice(cur, cur + offset))
+          } else {
+            const mid = cur + offset / 2
+            const end = cur + offset
+            chunks.push(file.slice(cur, cur + 2))
+            chunks.push(file.slice(mid, mid + 2))
+            chunks.push(file.slice(end - 2, end))
+          }
+          cur += offset
+        }
+        reader.readAsArrayBuffer(new Blob(chunks))
+        reader.onload = (e) => {
+          spark.append(e.target.result)
+          this.hashProgress = 100
+          resolve(spark.end())
+        }
+      })
+    },
     async uploadFile() {
       // ! 图片格式校验
       // if (!await this.isImage(this.file)) {
@@ -162,10 +195,13 @@ export default {
       //   return
       // }
       this.chunks = this.createFileChunk(this.file)
+      // ! webworker
       // const hash = await this.calculateHashWorker()
-      const hash1 = await this.calculateHashIdle()
-      // console.log('hash', hash)
-      console.log('hash1', hash1)
+      // ! idle
+      // const hash1 = await this.calculateHashIdle()
+      // ! 抽样hash
+      const hash2 = await this.calculateHashSample()
+      console.log('hash2', hash2)
 
       // const form = new FormData()
       // form.append('name', 'file')
