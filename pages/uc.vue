@@ -16,6 +16,21 @@
       <p>计算hash进度</p>
       <el-progress :stroke-width="20" :text-inside="true" :percentage="hashProgress" />
     </div>
+    <div>
+      <div :style="{ width: `${cubeWidth}px` }" class="cube-container">
+        <div v-for="chunk in chunks" :key="chunk.name" class="cube">
+          <div
+            :class="{
+              'uploading': chunk.progress > 0 && chunk.progress < 100,
+              'success': chunk.progress === 100,
+              'error': chunk.progress < 0
+            }"
+          >
+            <i v-if="chunk.progress<100 && chunk.progress > 0" class="el-icon-loading" style="color: #f56c6c" />
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -28,9 +43,23 @@ export default {
   data() {
     return {
       file: null,
-      uploadProgress: 0,
+      // uploadProgress: 0,
       hashProgress: 0,
-      hash: null
+      hash: null,
+      chunks: []
+    }
+  },
+  computed: {
+    cubeWidth() {
+      return Math.ceil(Math.sqrt(this.chunks.length)) * 16
+    },
+    uploadProgress() {
+      if (!this.file || this.chunks.length) {
+        return 0
+      }
+      const loaded = this.chunks.map(item => item.chunk.size * item.progress)
+        .reduce((acc, cur) => acc + cur, 0)
+      return Number(((loaded * 100) / this.file.size).toFixed(2))
     }
   },
   async mounted() {
@@ -194,15 +223,25 @@ export default {
       //   this.$message.error('文件格式错误')
       //   return
       // }
-      this.chunks = this.createFileChunk(this.file)
+      const chunks = this.createFileChunk(this.file)
       // ! webworker
+      // this.chunks = this.createFileChunk(this.file)
       // const hash = await this.calculateHashWorker()
       // ! idle
       // const hash1 = await this.calculateHashIdle()
       // ! 抽样hash
-      const hash2 = await this.calculateHashSample()
-      console.log('hash2', hash2)
-
+      this.hash = await this.calculateHashSample()
+      this.chunks = chunks.map((chunk, index) => {
+        const name = `${this.hash}-${index}`
+        return {
+          hash: this.hash,
+          name,
+          index,
+          file: chunk.file
+        }
+      })
+      // await this.uploadChunks()
+      // ! 直接上传整个文件
       // const form = new FormData()
       // form.append('name', 'file')
       // form.append('file', this.file)
@@ -211,6 +250,20 @@ export default {
       //     this.uploadProgress = Number((progress.loaded / progress.total) * 100).toFixed(2)
       //   }
       // })
+    },
+    async uploadChunks() {
+      const requests = this.chunks.map((chunk, index) => {
+        const form = new FormData()
+        form.append('chunk', chunk.chunk)
+        form.append('hash', chunk.hash)
+        form.append('name', chunk.name)
+        return form
+      }).map((form, index) => this.$http.post('/uploadfile', {
+        onUploadProgress: (progress) => {
+          this.chunks[index].progress = Number((progress.loaded / progress.total) * 100).toFixed(2)
+        }
+      }))
+      await Promise.all(requests)
     }
   }
 }
@@ -223,6 +276,20 @@ export default {
   border 2px dashed #eee
   text-align center
   line-height 100px
+.cube-container
+  .cube
+    width 14px
+    height 14px
+    line-height 12px
+    border 1px black solid
+    background #eee
+    float left
+    >.suceess
+      background green
+    >.uploading
+      background blue
+    >.error
+      background red
 .progress
   width 300px
 </style>
