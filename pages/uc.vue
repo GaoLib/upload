@@ -25,6 +25,7 @@
               'success': chunk.progress === 100,
               'error': chunk.progress < 0
             }"
+            :style="{ height: `${chunks.progress}%` }"
           >
             <i v-if="chunk.progress<100 && chunk.progress > 0" class="el-icon-loading" style="color: #f56c6c" />
           </div>
@@ -237,10 +238,10 @@ export default {
           hash: this.hash,
           name,
           index,
-          file: chunk.file
+          chunk: chunk.file
         }
       })
-      // await this.uploadChunks()
+      await this.uploadChunks()
       // ! 直接上传整个文件
       // const form = new FormData()
       // form.append('name', 'file')
@@ -258,7 +259,7 @@ export default {
         form.append('hash', chunk.hash)
         form.append('name', chunk.name)
         return form
-      }).map((form, index) => this.$http.post('/uploadfile', {
+      }).map((form, index) => this.$http.post('/uploadfile', form, {
         onUploadProgress: (progress) => {
           this.chunks[index].progress = Number((progress.loaded / progress.total) * 100).toFixed(2)
         }
