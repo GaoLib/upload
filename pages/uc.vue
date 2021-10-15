@@ -232,6 +232,17 @@ export default {
       // const hash1 = await this.calculateHashIdle()
       // ! 抽样hash
       this.hash = await this.calculateHashSample()
+
+      // ! 秒传：向后端确认文件是否上传过
+      const { data: { uploaded } } = await this.$http.post('checkfile', {
+        hash: this.hash,
+        ext: this.file.name.split('.').pop()
+      })
+      if (uploaded) {
+        this.$message.success('秒传成功!')
+        return
+      }
+
       this.chunks = chunks.map((chunk, index) => {
         const name = `${this.hash}-${index}`
         return {
