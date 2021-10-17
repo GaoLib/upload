@@ -234,7 +234,7 @@ export default {
       this.hash = await this.calculateHashSample()
 
       // ! 秒传：向后端确认文件是否上传过
-      const { data: { uploaded } } = await this.$http.post('checkfile', {
+      const { data: { uploaded, uploadedList } } = await this.$http.post('checkfile', {
         hash: this.hash,
         ext: this.file.name.split('.').pop()
       })
@@ -250,10 +250,10 @@ export default {
           name,
           index,
           chunk: chunk.file,
-          progress: 0
+          progress: uploadedList.includes(name) ? 100 : 0
         }
       })
-      await this.uploadChunks()
+      await this.uploadChunks(uploadedList)
       // ! 直接上传整个文件
       // const form = new FormData()
       // form.append('name', 'file')
@@ -264,18 +264,20 @@ export default {
       //   }
       // })
     },
-    async uploadChunks() {
-      const requests = this.chunks.map((chunk, index) => {
-        const form = new FormData()
-        form.append('chunk', chunk.chunk)
-        form.append('hash', chunk.hash)
-        form.append('name', chunk.name)
-        return form
-      }).map((form, index) => this.$http.post('/uploadfile', form, {
-        onUploadProgress: (progress) => {
-          this.chunks[index].progress = Number(((progress.loaded / progress.total) * 100).toFixed(2))
-        }
-      }))
+    async uploadChunks(uploadedList) {
+      const requests = this.chunks
+        .filter(chunk => !uploadedList.includes(chunk.name))
+        .map((chunk, index) => {
+          const form = new FormData()
+          form.append('chunk', chunk.chunk)
+          form.append('hash', chunk.hash)
+          form.append('name', chunk.name)
+          return { form, index: chunk.index }
+        }).map(({ form, index }) => this.$http.post('/uploadfile', form, {
+          onUploadProgress: (progress) => {
+            this.chunks[index].progress = Number(((progress.loaded / progress.total) * 100).toFixed(2))
+          }
+        }))
       await Promise.all(requests)
       await this.mergeRequest()
     },
