@@ -219,6 +219,9 @@ export default {
       })
     },
     async uploadFile() {
+      if (!this.file) {
+        return
+      }
       // ! 图片格式校验
       // if (!await this.isImage(this.file)) {
       //   this.$message.error('文件格式错误')
@@ -273,13 +276,46 @@ export default {
           form.append('hash', chunk.hash)
           form.append('name', chunk.name)
           return { form, index: chunk.index }
-        }).map(({ form, index }) => this.$http.post('/uploadfile', form, {
-          onUploadProgress: (progress) => {
-            this.chunks[index].progress = Number(((progress.loaded / progress.total) * 100).toFixed(2))
-          }
-        }))
-      await Promise.all(requests)
+        })
+        // .map(({ form, index }) => this.$http.post('/uploadfile', form, {
+        //   onUploadProgress: (progress) => {
+        //     this.chunks[index].progress = Number(((progress.loaded / progress.total) * 100).toFixed(2))
+        //   }
+        // }))
+      // ! 尝试申请tcp连接过多，造成卡顿
+      // ? await Promise.all(requests)
+      await this.sendRequest(requests)
       await this.mergeRequest()
+    },
+    sendRequest(chunks, limit = 4) {
+      return new Promise((resolve, reject) => {
+        const len = chunks.length
+        let counter = 0
+        const start = async () => {
+          const task = chunks.shift()
+          if (task) {
+            const { form, index } = task
+            await this.$http.post('/uploadfile', form, {
+              onUploadProgress: (progress) => {
+                this.chunks[index].progress = Number(((progress.loaded / progress.total) * 100).toFixed(2))
+              }
+            })
+            if (counter === len - 1) {
+              resolve()
+            } else {
+              counter++
+              start()
+            }
+          }
+        }
+        while (limit > 0) {
+          // start()
+          setTimeout(() => {
+            start()
+          }, Math.random() * 2000)
+          limit -= 1
+        }
+      })
     },
     mergeRequest() {
       this.$http.post('/mergefile', {
