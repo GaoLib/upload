@@ -7,7 +7,14 @@
     </div>
     <el-row>
       <el-col :span="12">
-        <textarea :valve="content" @input="update" cols="30" rows="10" class="md-editor" />
+        <textarea
+          ref="editor"
+          :value="content"
+          @input="update"
+          cols="30"
+          rows="10"
+          class="md-editor"
+        />
       </el-col>
       <el-col :span="12">
         <div v-html="compiledContent" class="markdown-body" />
@@ -33,9 +40,27 @@ export default {
       return marked(this.content, {})
     }
   },
+  mounted() {
+    this.timer = null
+    this.bindEvent()
+  },
   methods: {
+    bindEvent() {
+      this.$refs.editor.addEventListener('paste', (e) => {
+        const files = e.clipboardData.files
+        console.log(files)
+      })
+      this.$refs.editor.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files
+        console.log(files)
+        e.preventDefault()
+      })
+    },
     update(e) {
-      this.content = e.target.value
+      clearTimeout(this.timer)
+      this.timer = setTimeout(() => {
+        this.content = e.target.value
+      }, 350)
     },
     submit() {}
   }
