@@ -25,6 +25,9 @@
 
 <script>
 import marked from 'marked'
+import hljs from 'highlight.js'
+// import javascript from 'highlight.js/lib/languages/javascript'
+import 'highlight.js/styles/github.css'
 
 export default {
   data() {
@@ -32,7 +35,11 @@ export default {
       content: `# 学习吖
       * 上课
       * 看书
-      * 工作`
+      * 工作
+      \`\`\`javascript
+      let a = 1
+      console.log(a)
+      \`\`\``
     }
   },
   computed: {
@@ -43,6 +50,13 @@ export default {
   mounted() {
     this.timer = null
     this.bindEvent()
+
+    marked.setOptions({
+      render: new marked.Renderer(),
+      highlight(code) {
+        return hljs.highlightAuto(code).value
+      }
+    })
   },
   methods: {
     bindEvent() {
