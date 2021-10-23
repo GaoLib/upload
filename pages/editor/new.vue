@@ -26,8 +26,9 @@
 <script>
 import marked from 'marked'
 import hljs from 'highlight.js'
-// import javascript from 'highlight.js/lib/languages/javascript'
-import 'highlight.js/styles/github.css'
+// eslint-disable-next-line no-unused-vars
+import javascript from 'highlight.js/lib/languages/javascript'
+import 'highlight.js/styles/monokai-sublime.css'
 
 export default {
   data() {
@@ -36,10 +37,11 @@ export default {
       * 上课
       * 看书
       * 工作
-      \`\`\`javascript
-      let a = 1
-      console.log(a)
-      \`\`\``
+\`\`\`javascript
+  let a =1;
+  console.log(a)
+\`\`\`
+      `
     }
   },
   computed: {
@@ -52,7 +54,7 @@ export default {
     this.bindEvent()
 
     marked.setOptions({
-      render: new marked.Renderer(),
+      rendered: new marked.Renderer(),
       highlight(code) {
         return hljs.highlightAuto(code).value
       }
@@ -76,7 +78,12 @@ export default {
         this.content = e.target.value
       }, 350)
     },
-    submit() {}
+    async submit() {
+      await this.$http.post('/article/create', {
+        content: this.content,
+        compiledContent: this.compiledContent
+      })
+    }
   }
 }
 </script>
