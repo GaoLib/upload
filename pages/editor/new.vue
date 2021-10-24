@@ -64,11 +64,9 @@ export default {
     bindEvent() {
       this.$refs.editor.addEventListener('paste', (e) => {
         const files = e.clipboardData.files
-        console.log(files)
       })
       this.$refs.editor.addEventListener('drop', (e) => {
         const files = e.dataTransfer.files
-        console.log(files)
         e.preventDefault()
       })
     },
