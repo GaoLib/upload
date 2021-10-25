@@ -1,7 +1,17 @@
 <template>
-  <div>
-    <nuxt />
-  </div>
+  <el-container>
+    <el-header>
+      <el-menu mode="horizontal">
+        <el-menu-item>
+          <nuxt-list to="/"></nuxt-list>
+        </el-menu-item>
+      </el-menu>
+    </el-header>
+    <el-main>
+      <nuxt />
+    </el-main>
+    <el-footer></el-footer>
+  </el-container>
 </template>
 
 <style>
