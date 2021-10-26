@@ -63,10 +63,10 @@ export default {
   methods: {
     bindEvent() {
       this.$refs.editor.addEventListener('paste', (e) => {
-        const files = e.clipboardData.files
+        // const files = e.clipboardData.files
       })
       this.$refs.editor.addEventListener('drop', (e) => {
-        const files = e.dataTransfer.files
+        // const files = e.dataTransfer.files
         e.preventDefault()
       })
     },

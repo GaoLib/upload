@@ -3,17 +3,58 @@
     <el-header>
       <el-menu mode="horizontal">
         <el-menu-item>
-          <nuxt-list to="/"></nuxt-list>
+          <nuxt-list to="/" />
         </el-menu-item>
+        <template v-if="userInfo.id">
+          <el-menu-item>
+            <a>退出</a>
+          </el-menu-item>
+          <el-menu-item>
+            <nuxt-list to="/editor/new">
+              写文章
+            </nuxt-list>
+          </el-menu-item>
+        </template>
+        <template v-else>
+          <el-menu-item>
+            <nuxt-list to="/register">
+              注册
+            </nuxt-list>
+          </el-menu-item>
+          <el-menu-item>
+            <nuxt-list to="/login">
+              登录
+            </nuxt-list>
+          </el-menu-item>
+        </template>
       </el-menu>
     </el-header>
     <el-main>
       <nuxt />
     </el-main>
-    <el-footer></el-footer>
+    <el-footer />
   </el-container>
 </template>
-
+<script>
+export default {
+  computed: {
+    userInfo() {
+      return this.$store.state.user
+    }
+  },
+  mounted() {
+    this.getUserInfo()
+  },
+  methods: {
+    getUserInfo() {
+      const token = localStorage.getItem('token')
+      if (token) {
+        this.$store.dispatch('user/detail')
+      }
+    }
+  }
+}
+</script>
 <style>
 html {
   font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI',
