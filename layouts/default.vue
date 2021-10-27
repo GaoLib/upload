@@ -3,28 +3,31 @@
     <el-header>
       <el-menu mode="horizontal">
         <el-menu-item>
-          <nuxt-list to="/" />
+          <nuxt-link to="/" />
         </el-menu-item>
         <template v-if="userInfo.id">
           <el-menu-item>
             <a>退出</a>
           </el-menu-item>
           <el-menu-item>
-            <nuxt-list to="/editor/new">
+            <span>{{ userInfo.nickname }}</span>
+          </el-menu-item>
+          <el-menu-item>
+            <nuxt-link to="/editor/new">
               写文章
-            </nuxt-list>
+            </nuxt-link>
           </el-menu-item>
         </template>
         <template v-else>
           <el-menu-item>
-            <nuxt-list to="/register">
+            <nuxt-link to="/register">
               注册
-            </nuxt-list>
+            </nuxt-link>
           </el-menu-item>
           <el-menu-item>
-            <nuxt-list to="/login">
+            <nuxt-link to="/login">
               登录
-            </nuxt-list>
+            </nuxt-link>
           </el-menu-item>
         </template>
       </el-menu>
