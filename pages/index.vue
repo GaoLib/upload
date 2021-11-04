@@ -15,15 +15,28 @@ export default {
   },
   data() {
     return {
-      articles: []
-    }
-  },
-  async mounted() {
-    const ret = await this.$http.get('/article')
-    if (ret.code === 0) {
-      this.articles = ret.data
+      articles: [
+        {
+          views: 3,
+          like: 0,
+          _id: 1,
+          title: 'teessstt'
+        },
+        {
+          views: 3,
+          like: 0,
+          _id: 2,
+          title: '2222222'
+        }
+      ]
     }
   }
+  // async mounted() {
+  //   const ret = await this.$http.get('/article')
+  //   if (ret.code === 0) {
+  //     this.articles = ret.data
+  //   }
+  // }
 }
 </script>
 

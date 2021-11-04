@@ -1,12 +1,25 @@
 <template>
   <div ref="list" @scroll="scrollEvent($event)" class="list-container">
     <div :style="{ height: `${listHeight}px`}" class="list-phantom" />
-    <div :style="{ top: listTop }" class="list" />
+    <div :style="{ top: listTop }" class="list">
+      <article-item
+        v-for="item in visibleData"
+        :key="item._id"
+        :article="item"
+        :style="{ height: `${size}px` }"
+        class="list-item"
+      />
+    </div>
   </div>
 </template>
 
 <script>
+import ArticleItem from './ArticleItem.vue'
+
 export default {
+  components: {
+    ArticleItem
+  },
   props: {
     listData: {
       type: Array,
@@ -56,10 +69,10 @@ export default {
 <style lang="stylus" scoped>
 .list-container
   height 100%
-  overflow hidden
+  overflow auto
   position relative
   .list-phantom
-    position relative
+    position absolute
     left 0
     top 0
     right 0
@@ -69,4 +82,8 @@ export default {
     left 0
     top 0
     right 0
+    .list-item
+      padding 10px
+      color #555
+      border-bottom 1px solid #999
 </style>

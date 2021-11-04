@@ -1,24 +1,29 @@
 <template>
   <div class="article-item">
     <h2 style="width:900px">
-      <nuxt-link :to='"/article/"+article._id'>
-        {{article.title}}
+      <nuxt-link :to="'/article/'+article._id">
+        {{ article.title }}
       </nuxt-link>
-    <h2>
+    </h2>
     <p>
       <span class="action">
-        <i class="el-icon-view">{{article.views}}</i>
+        <i class="el-icon-view">{{ article.views }}</i>
       </span>
       <span class="action">
-        <i class="el-icon-thumb">{{article.like}}</i>
-      </span> 
+        <i class="el-icon-thumb">{{ article.like }}</i>
+      </span>
     </p>
   </div>
 </template>
 
 <script>
 export default {
-  props:['article'],
+  props: {
+    article: {
+      type: Object,
+      default: () => {}
+    }
+  }
 }
 </script>
 
